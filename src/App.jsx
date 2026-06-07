@@ -16,46 +16,36 @@ const CW_RED   = "#E4002B";
 const CW_LIGHT = "#f4f6fb";
 
 // ─── ConnectWise Logo — faithful recreation of the crown/M-W mark ────────────
-function CWLogo({ height = 38, dark = false }) {
+function CWLogo({ height = 54, dark = false }) {
   const textColor = dark ? CW_BLUE : "#ffffff";
   const markColor = dark ? CW_BLUE : "#ffffff";
   return (
-    <svg height={height} viewBox="0 0 210 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="ConnectWise">
-      {/* Crown mark — two arches forming the M/W shape */}
-      <g transform="translate(0, 1)">
-        {/* Left arch */}
-        <path
-          d="M 10 8 Q 10 2 16 2 Q 22 2 22 8 L 22 26 Q 22 30 26 30 Q 30 30 30 26 L 30 8 Q 30 2 36 2 Q 42 2 42 8 L 42 26 Q 42 30 46 30 Q 50 30 50 26 L 50 8 Q 50 2 56 2 Q 62 2 62 8 L 62 38 Q 62 44 56 44 L 16 44 Q 10 44 10 38 Z"
-          fill="none"
-          stroke={markColor}
-          strokeWidth="0"
-        />
-        {/* Actual clean M/W crown paths */}
-        {/* Outer left leg */}
-        <path d="M 8 36 L 8 14 Q 8.5 6 15 6 Q 20 6 21 12 L 21 26 Q 21.5 31 26 31 Q 30.5 31 31 26 L 31 12 Q 32 6 37 6 Q 42 6 43 12 L 43 26 Q 43.5 31 48 31 Q 52.5 31 53 26 L 53 12 Q 54 6 59 6 Q 65.5 6 66 14 L 66 36 Q 65.5 42 59 42 L 15 42 Q 8.5 42 8 36 Z"
-          fill={markColor} opacity="0.12" />
-        {/* Left outer arch stroke */}
-        <path d="M 14 40 L 14 16 Q 14 10 19 10 Q 24 10 25 16 L 25 28 Q 25 34 31 34"
-          stroke={markColor} strokeWidth="5.5" strokeLinecap="round" fill="none"/>
-        {/* Middle valley up */}
-        <path d="M 31 34 Q 37 34 37 28 L 37 16 Q 38 10 43 10 Q 48 10 48 16 L 48 28 Q 48 34 54 34"
-          stroke={markColor} strokeWidth="5.5" strokeLinecap="round" fill="none"/>
-        {/* Right outer arch stroke */}
-        <path d="M 54 34 Q 60 34 60 28 L 60 16 Q 60 10 65 10 Q 70 10 70 16 L 70 40"
-          stroke={markColor} strokeWidth="5.5" strokeLinecap="round" fill="none"/>
-        {/* Connect left and right base */}
-        <path d="M 14 40 L 70 40" stroke={markColor} strokeWidth="5.5" strokeLinecap="round" fill="none"/>
-      </g>
+    <svg height={height} viewBox="0 0 330 54" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="ConnectWise">
+      {/* Left outer sweep */}
+      <path d="M28 6 C8 6 0 20 9 37" stroke={markColor} strokeWidth="4.8" strokeLinecap="round" fill="none"/>
+      {/* Right outer sweep */}
+      <path d="M62 6 C82 6 90 20 81 37" stroke={markColor} strokeWidth="4.8" strokeLinecap="round" fill="none"/>
+      {/* Left inner arc */}
+      <path d="M28 6 C28 18 36 28 45 37" stroke={markColor} strokeWidth="4.8" strokeLinecap="round" fill="none"/>
+      {/* Right inner arc */}
+      <path d="M62 6 C62 18 54 28 45 37" stroke={markColor} strokeWidth="4.8" strokeLinecap="round" fill="none"/>
+      {/* Centre W notch */}
+      <path d="M36 26 L45 40 L54 26" stroke={markColor} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      {/* TM */}
+      <text x="90" y="9" fontFamily="Arial,sans-serif" fontSize="7.5" fill={markColor}>TM</text>
+      {/* Divider */}
+      <line x1="104" y1="5" x2="104" y2="50" stroke="rgba(255,255,255,0.22)" strokeWidth="1.2"/>
       {/* CONNECTWISE wordmark */}
       <text
-        x="86" y="32"
-        fontFamily="'Segoe UI', Arial, Helvetica, sans-serif"
-        fontWeight="700"
-        fontSize="19"
+        x="116" y="35"
+        fontFamily="'Trebuchet MS', Arial, sans-serif"
+        fontWeight="600"
+        fontSize="20"
         fill={textColor}
-        letterSpacing="1.2"
-        textAnchor="start"
+        letterSpacing="3.8"
       >CONNECTWISE</text>
+      {/* ® */}
+      <text x="310" y="20" fontFamily="Arial,sans-serif" fontSize="9" fill={textColor}>®</text>
     </svg>
   );
 }
