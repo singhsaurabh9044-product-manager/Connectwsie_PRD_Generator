@@ -18,34 +18,59 @@ const CW_LIGHT = "#f4f6fb";
 // ─── ConnectWise Logo — faithful recreation of the crown/M-W mark ────────────
 function CWLogo() {
   return (
-    <svg height="48" viewBox="0 0 370 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="ConnectWise" style={{flexShrink:0}}>
-      {/* Owl mark — pure strokes matching official logo */}
-      {/* Left outer arc */}
-      <path d="M24 4 C6 4 1 16 4 30 C6 37 10 41 14 43"
-        stroke="white" strokeWidth="4.5" strokeLinecap="round" fill="none"/>
-      {/* Right outer arc */}
-      <path d="M52 4 C70 4 75 16 72 30 C70 37 66 41 62 43"
-        stroke="white" strokeWidth="4.5" strokeLinecap="round" fill="none"/>
-      {/* Left inner arc to centre */}
-      <path d="M24 4 C24 16 31 26 38 34"
-        stroke="white" strokeWidth="4.5" strokeLinecap="round" fill="none"/>
-      {/* Right inner arc to centre */}
-      <path d="M52 4 C52 16 45 26 38 34"
-        stroke="white" strokeWidth="4.5" strokeLinecap="round" fill="none"/>
-      {/* Centre W */}
-      <path d="M30 23 L38 36 L46 23"
-        stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <div style={{ display:"flex", alignItems:"center", gap:0, flexShrink:0 }}>
+      {/* Icon mark — SVG only for the owl shape, no text inside SVG */}
+      <svg
+        width="58" height="52"
+        viewBox="0 0 80 52"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{ flexShrink:0 }}
+      >
+        {/* Left outer arc */}
+        <path
+          d="M22 5 C6 5 1 16 3 28 C5 35 9 40 14 43"
+          stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"
+        />
+        {/* Right outer arc */}
+        <path
+          d="M54 5 C70 5 75 16 73 28 C71 35 67 40 62 43"
+          stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"
+        />
+        {/* Left inner arc */}
+        <path
+          d="M22 5 C22 17 30 27 38 34"
+          stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"
+        />
+        {/* Right inner arc */}
+        <path
+          d="M54 5 C54 17 46 27 38 34"
+          stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"
+        />
+        {/* Centre W notch */}
+        <path
+          d="M29 24 L38 38 L47 24"
+          stroke="white" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" fill="none"
+        />
+      </svg>
       {/* Divider */}
-      <line x1="90" y1="6" x2="90" y2="42" stroke="rgba(255,255,255,0.28)" strokeWidth="1.2"/>
-      {/* Wordmark — Arial bold, letterSpacing 1, fits fully in 370px viewBox */}
-      <text x="102" y="32"
-        fontFamily="Arial, Helvetica, sans-serif"
-        fontWeight="700" fontSize="21" fill="white" letterSpacing="1">CONNECTWISE</text>
-      {/* ® */}
-      <text x="343" y="17" fontFamily="Arial,sans-serif" fontSize="10" fill="white">®</text>
-    </svg>
+      <div style={{ width:1, height:36, background:"rgba(255,255,255,0.25)", margin:"0 14px", flexShrink:0 }} />
+      {/* Wordmark as plain HTML — never truncates, works in all browsers */}
+      <span style={{
+        color:"white",
+        fontFamily:"Arial, Helvetica, sans-serif",
+        fontWeight:"700",
+        fontSize:"18px",
+        letterSpacing:"2px",
+        whiteSpace:"nowrap",
+        lineHeight:1
+      }}>
+        CONNECTWISE<sup style={{ fontSize:"9px", letterSpacing:0, verticalAlign:"super", marginLeft:1 }}>®</sup>
+      </span>
+    </div>
   );
 }
+
 
 
 // ─── Constants ────────────────────────────────────────────────────────────────
