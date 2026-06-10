@@ -1174,50 +1174,6 @@ export default function App() {
                   <div style={{ display:"flex", gap:8 }}>
                     <button onClick={()=>doCopy(viewingHist.prd || viewingHist.text,"hist_md")}
 
-Find:
-jsonClick={()=>downloadDocx(viewingHist.text)}
-Replace with:
-jsonClick={()=>downloadDocx(viewingHist.prd || viewingHist.text)}
-
-Find:
-jsonClick={()=>downloadPdf(viewingHist.text)}
-generator · JSXCopy style={{ padding:"7px 16px", background:"white", border:`1.5px solid ${CW_BLUE}`, color:CW_BLUE, borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:600 }}>
-                      {copied==="hist_md" ? "✅ Copied!" : "📋 Copy Markdown"}
-                    </button>
-                    <button
-                      onClick={()=>downloadDocx(viewingHist.prd || viewingHist.text)}
-
-Find:
-jsonClick={()=>downloadPdf(viewingHist.text)}
-Replace with:
-jsonClick={()=>downloadPdf(viewingHist.prd || viewingHist.text)}
-
-Find:
-jsonClick={()=>{ setPrdText(viewingHist.text); setTab("output"); setViewingHist(null); }}
-Replace with:
-jsonClick={()=>{ setPrdText(viewingHist.prd || viewingHist.text); setTab("output"); setViewingHist(null); }}
-
-Also find where history is saved and add the missing fields. Search for setHistory and make sure it looks like this:
-Find:
-jssetHistory(h => [{ title: title || product, prd: text, ts: new Date().toLocaleString() }, ...h.slice(0, 9)])
-Replace with:
-jssetHistory(h => [{
-  id: Date.now(),
-  title: title || product,
-  prd: text,
-  text: text,
-  product: product,
-  priority: priority,
-  pmName: pmName,
-  date: new Date().toLocaleDateString()
-}, ...h.slice(0, 9)])
-
-Summary of what's happening:
-LocationField usedStatusSave to historyprd: text✅ Saves correctlyDisplay in viewviewingHist.text❌ .text doesn't exist → blankCopy MarkdownviewingHist.text❌ Same issueDownload DOCXviewingHist.text❌ Same issueDownload PDFviewingHist.text❌ Same issue
-One commit fixing all 5 lines → Vercel redeploys → everything works ✅Sonnet 4.6 LowClaude is AI and can make mistakes. Please double-check responses.Connectwise prd generator · JSXCopy
-                      disabled={!!downloading}
-                      style={{ padding:"7px 16px", background:downloading==="docx"?"#ccc":CW_BLUE, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:downloading?"wait":"pointer", fontWeight:600, display:"flex", alignItems:"center", gap:6 }}
-                    >
                       {downloading==="docx" ? "⏳ Building…" : <><WordIcon /> DOCX</>}
                     </button>
                     <button
