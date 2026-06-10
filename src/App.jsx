@@ -604,7 +604,7 @@ export default function App() {
       });
       setPrdText(prev => {
         const title = prev.match(/^# PRD: (.+)/m)?.[1] || `PRD — ${product}`;
-        const entry = { id: Date.now(), title, product, priority, pmName, date: new Date().toLocaleDateString(), text: prev };
+        const entry = { id: Date.now(), title, product, priority, pmName, date: new Date().toLocaleDateString(), text: prev, prd: prev };
         setHistory(h => [entry, ...h.slice(0,19)]);
         return prev;
       });
