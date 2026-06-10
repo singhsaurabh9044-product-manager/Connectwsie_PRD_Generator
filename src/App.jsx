@@ -1276,7 +1276,7 @@ One commit fixing all 5 lines → Vercel redeploys → everything works ✅�
                     >
                       {downloading==="pdf" ? "⏳ Building…" : <><PdfIcon /> PDF</>}
                     </button>
-                    <button onClick={()=>{ setPrdText(viewingHist.text); setTab("output"); setViewingHist(null); }} style={{ padding:"7px 16px", background:CW_BLUE, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:600 }}>
+                    <button onClick={()=>{ setPrdText(viewingHist.prd || viewingHist.text); setTab("output"); setViewingHist(null); }} style={{ padding:"7px 16px", background:CW_BLUE, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:600 }}>
                       Open in PRD View →
                     </button>
                   </div>
