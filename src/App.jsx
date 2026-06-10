@@ -318,7 +318,7 @@ const ENHANCE_SYSTEM = `You are a ConnectWise product manager assistant. Take a 
 const API_KEY = process.env.REACT_APP_ANTHROPIC_API_KEY || "";
 
 async function callClaude({ system, userMsg, stream = false, onChunk }) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("/api/generate-prd", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
