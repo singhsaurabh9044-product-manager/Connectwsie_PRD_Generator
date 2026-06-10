@@ -328,7 +328,7 @@ async function callClaude({ system, userMsg, stream = false, onChunk }) {
     },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 8000,
+      max_tokens: 4000,
       stream,
       system,
       messages: [{ role: "user", content: userMsg }],
