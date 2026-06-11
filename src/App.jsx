@@ -15,63 +15,24 @@ const CW_BLUE  = "#003087";
 const CW_RED   = "#E4002B";
 const CW_LIGHT = "#f4f6fb";
 
-// ─── ConnectWise Logo — faithful recreation of the crown/M-W mark ────────────
+// ─── ConnectWise Logo ────────────────────────────────────────────────────────
 function CWLogo() {
   return (
     <div style={{ display:"flex", alignItems:"center", gap:0, flexShrink:0 }}>
-      {/* Icon mark — SVG only for the owl shape, no text inside SVG */}
-      <svg
-        width="58" height="52"
-        viewBox="0 0 80 52"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ flexShrink:0 }}
-      >
-        {/* Left outer arc */}
-        <path
-          d="M22 5 C6 5 1 16 3 28 C5 35 9 40 14 43"
-          stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"
-        />
-        {/* Right outer arc */}
-        <path
-          d="M54 5 C70 5 75 16 73 28 C71 35 67 40 62 43"
-          stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"
-        />
-        {/* Left inner arc */}
-        <path
-          d="M22 5 C22 17 30 27 38 34"
-          stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"
-        />
-        {/* Right inner arc */}
-        <path
-          d="M54 5 C54 17 46 27 38 34"
-          stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"
-        />
-        {/* Centre W notch */}
-        <path
-          d="M29 24 L38 38 L47 24"
-          stroke="white" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" fill="none"
-        />
+      <svg width="58" height="52" viewBox="0 0 80 52" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink:0 }}>
+        <path d="M22 5 C6 5 1 16 3 28 C5 35 9 40 14 43" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
+        <path d="M54 5 C70 5 75 16 73 28 C71 35 67 40 62 43" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
+        <path d="M22 5 C22 17 30 27 38 34" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
+        <path d="M54 5 C54 17 46 27 38 34" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
+        <path d="M29 24 L38 38 L47 24" stroke="white" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
       </svg>
-      {/* Divider */}
       <div style={{ width:1, height:36, background:"rgba(255,255,255,0.25)", margin:"0 14px", flexShrink:0 }} />
-      {/* Wordmark as plain HTML — never truncates, works in all browsers */}
-      <span style={{
-        color:"white",
-        fontFamily:"Arial, Helvetica, sans-serif",
-        fontWeight:"700",
-        fontSize:"18px",
-        letterSpacing:"2px",
-        whiteSpace:"nowrap",
-        lineHeight:1
-      }}>
+      <span style={{ color:"white", fontFamily:"Arial, Helvetica, sans-serif", fontWeight:"700", fontSize:"18px", letterSpacing:"2px", whiteSpace:"nowrap", lineHeight:1 }}>
         CONNECTWISE<sup style={{ fontSize:"9px", letterSpacing:0, verticalAlign:"super", marginLeft:1 }}>®</sup>
       </span>
     </div>
   );
 }
-
-
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PRODUCTS = [
@@ -314,20 +275,14 @@ Items explicitly excluded with rationale.
 const ENHANCE_SYSTEM = `You are a ConnectWise product manager assistant. Take a brief requirement and expand it into a richer brief (150–250 words) that will produce a higher-quality PRD. Add context about MSP/MSSP/TSP partner impact, business value, pain points, and scale. Return only the enhanced brief, no preamble or labels.`;
 
 // ─── API helper ───────────────────────────────────────────────────────────────
-// In Vercel: set REACT_APP_ANTHROPIC_API_KEY in project env vars
 const API_KEY = process.env.REACT_APP_ANTHROPIC_API_KEY || "";
 
 async function callClaude({ system, userMsg, stream = false, onChunk }) {
   const res = await fetch("/api/generate-prd", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": API_KEY,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
+      model: "claude-haiku-4-5",
       max_tokens: 4000,
       stream,
       system,
@@ -342,7 +297,6 @@ async function callClaude({ system, userMsg, stream = false, onChunk }) {
     const data = await res.json();
     return data.content?.map(b => b.text || "").join("") || "";
   }
-  // Streaming
   const reader = res.body.getReader();
   const dec = new TextDecoder();
   let acc = "";
@@ -389,9 +343,7 @@ function MDRenderer({ content }) {
       const tLines = [];
       while (i < lines.length && /^\|/.test(lines[i])) { tLines.push(lines[i]); i++; }
       const headers = tLines[0].split("|").slice(1,-1).map(c => c.trim());
-      const rows = tLines.slice(2)
-        .map(r => r.split("|").slice(1,-1).map(c => c.trim()))
-        .filter(r => r.length && !r.every(c => /^[-:]+$/.test(c)));
+      const rows = tLines.slice(2).map(r => r.split("|").slice(1,-1).map(c => c.trim())).filter(r => r.length && !r.every(c => /^[-:]+$/.test(c)));
       els.push(
         <div key={`t${i}`} style={{ overflowX:"auto", margin:"10px 0 14px" }}>
           <table style={{ borderCollapse:"collapse", width:"100%", fontSize:12.5 }}>
@@ -402,9 +354,9 @@ function MDRenderer({ content }) {
       );
       continue;
     }
-    if (/^[-*] /.test(line))   { els.push(<li key={i} style={{ marginLeft:20, marginBottom:3, fontSize:13, lineHeight:1.6 }}>{renderInline(line.replace(/^[-*] /,""))}</li>); i++; continue; }
-    if (/^\d+\. /.test(line))  { els.push(<li key={i} style={{ marginLeft:20, marginBottom:3, fontSize:13, lineHeight:1.6, listStyleType:"decimal" }}>{renderInline(line.replace(/^\d+\. /,""))}</li>); i++; continue; }
-    if (line.trim()==="")      { els.push(<div key={i} style={{ height:5 }} />); i++; continue; }
+    if (/^[-*] /.test(line))  { els.push(<li key={i} style={{ marginLeft:20, marginBottom:3, fontSize:13, lineHeight:1.6 }}>{renderInline(line.replace(/^[-*] /,""))}</li>); i++; continue; }
+    if (/^\d+\. /.test(line)) { els.push(<li key={i} style={{ marginLeft:20, marginBottom:3, fontSize:13, lineHeight:1.6, listStyleType:"decimal" }}>{renderInline(line.replace(/^\d+\. /,""))}</li>); i++; continue; }
+    if (line.trim()==="")     { els.push(<div key={i} style={{ height:5 }} />); i++; continue; }
     els.push(<p key={i} style={{ fontSize:13, margin:"3px 0", lineHeight:1.7, color:"#333" }}>{renderInline(line)}</p>);
     i++;
   }
@@ -431,9 +383,7 @@ function VoiceButton({ onTranscript, disabled }) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { setSupported(false); return; }
     const r = new SR();
-    r.continuous = true;
-    r.interimResults = true;
-    r.lang = "en-US";
+    r.continuous = true; r.interimResults = true; r.lang = "en-US";
     let finalTranscript = "";
     r.onresult = (e) => {
       let interim = "";
@@ -443,16 +393,8 @@ function VoiceButton({ onTranscript, disabled }) {
       }
       onTranscript(finalTranscript + interim, false);
     };
-    r.onend = () => {
-      setListening(false);
-      onTranscript(finalTranscript.trim(), true);
-      finalTranscript = "";
-    };
-    r.onerror = (e) => {
-      setListening(false);
-      setError(e.error === "not-allowed" ? "Microphone access denied." : "Voice error.");
-      setTimeout(() => setError(""), 3000);
-    };
+    r.onend = () => { setListening(false); onTranscript(finalTranscript.trim(), true); finalTranscript = ""; };
+    r.onerror = (e) => { setListening(false); setError(e.error === "not-allowed" ? "Microphone access denied." : "Voice error."); setTimeout(() => setError(""), 3000); };
     recogRef.current = r;
   }, [onTranscript]);
 
@@ -463,37 +405,21 @@ function VoiceButton({ onTranscript, disabled }) {
   };
 
   if (!supported) return null;
-
   return (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:3 }}>
-      <button
-        onClick={toggle}
-        disabled={disabled}
-        title={listening ? "Click to stop recording" : "Click to speak your requirement"}
-        style={{
-          width:40, height:40, borderRadius:"50%", border:"none", cursor:disabled?"not-allowed":"pointer",
-          background: listening ? CW_RED : `${CW_BLUE}15`,
-          color: listening ? "white" : CW_BLUE,
-          fontSize:17, display:"flex", alignItems:"center", justifyContent:"center",
-          transition:"all .2s",
-          boxShadow: listening ? `0 0 0 4px ${CW_RED}30, 0 0 0 8px ${CW_RED}15` : "none",
-          animation: listening ? "micPulse 1.2s ease-in-out infinite" : "none",
-          flexShrink:0,
-        }}
-      >
+      <button onClick={toggle} disabled={disabled} title={listening ? "Stop recording" : "Speak your requirement"}
+        style={{ width:40, height:40, borderRadius:"50%", border:"none", cursor:disabled?"not-allowed":"pointer", background:listening?CW_RED:`${CW_BLUE}15`, color:listening?"white":CW_BLUE, fontSize:17, display:"flex", alignItems:"center", justifyContent:"center", transition:"all .2s", boxShadow:listening?`0 0 0 4px ${CW_RED}30,0 0 0 8px ${CW_RED}15`:"none", animation:listening?"micPulse 1.2s ease-in-out infinite":"none", flexShrink:0 }}>
         {listening ? "⏹" : "🎤"}
       </button>
       {error && <span style={{ fontSize:11, color:CW_RED }}>{error}</span>}
-      <style>{`@keyframes micPulse{0%,100%{box-shadow:0 0 0 4px ${CW_RED}40,0 0 0 8px ${CW_RED}18}50%{box-shadow:0 0 0 6px ${CW_RED}50,0 0 0 12px ${CW_RED}22}} @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}`}</style>
     </div>
   );
 }
 
-// ─── Doc format icons ────────────────────────────────────────────────────────
+// ─── Doc format icons ─────────────────────────────────────────────────────────
 function WordIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="2" y="2" width="14" height="20" rx="2" fill="white" opacity="0.25"/>
       <path d="M2 4a2 2 0 012-2h8l6 6v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="white" strokeWidth="1.5" fill="none"/>
       <path d="M12 2v6h6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
       <path d="M6 13l1.5 4 1.5-4 1.5 4L12 13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -510,69 +436,26 @@ function PdfIcon() {
   );
 }
 
-// ─── API Key gate ─────────────────────────────────────────────────────────────
-function ApiKeyGate({ onKey }) {
-  const [val, setVal] = useState("");
-  const [err, setErr] = useState("");
-  const submit = () => {
-    if (!val.trim().startsWith("sk-")) { setErr("Key should start with sk-ant-…"); return; }
-    onKey(val.trim());
-  };
-  return (
-    <div style={{ minHeight:"100vh", background:CW_LIGHT, display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <div style={{ background:"white", borderRadius:16, padding:40, maxWidth:440, width:"90%", boxShadow:"0 4px 24px rgba(0,0,80,.12)" }}>
-        <CWLogo height={40} dark />
-        <h2 style={{ color:CW_BLUE, marginTop:20, marginBottom:8, fontSize:20 }}>PRD Generator</h2>
-        <p style={{ color:"#666", fontSize:13, lineHeight:1.6, marginBottom:24 }}>
-          Enter your Anthropic API key to get started. The key is stored only in your browser session and never sent anywhere except the Anthropic API.
-        </p>
-        <input
-          value={val} onChange={e=>{setVal(e.target.value);setErr("");}}
-          placeholder="sk-ant-api03-..."
-          type="password"
-          onKeyDown={e=>e.key==="Enter"&&submit()}
-          style={{ width:"100%", padding:"11px 13px", border:`1.5px solid ${err?CW_RED:"#dde3f0"}`, borderRadius:8, fontSize:13, outline:"none", marginBottom:6, boxSizing:"border-box" }}
-        />
-        {err && <div style={{ color:CW_RED, fontSize:12, marginBottom:8 }}>{err}</div>}
-        <button onClick={submit} style={{ width:"100%", padding:13, background:CW_RED, color:"white", border:"none", borderRadius:8, fontSize:14, fontWeight:700, cursor:"pointer", marginTop:4 }}>
-          Continue →
-        </button>
-        <p style={{ marginTop:16, fontSize:11.5, color:"#aaa", textAlign:"center" }}>
-          No key? Get one at{" "}
-          <a href="https://console.anthropic.com" target="_blank" rel="noreferrer" style={{ color:CW_BLUE }}>console.anthropic.com</a>
-        </p>
-        <div style={{ marginTop:16, padding:"10px 14px", background:"#f0f4ff", borderRadius:8, fontSize:12, color:"#555" }}>
-          <strong>Deploying to Vercel?</strong> Set <code>REACT_APP_ANTHROPIC_API_KEY</code> in your project environment variables — this screen won't appear.
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function App() {
-  // API key — prefers env var, falls back to session state
-  const [apiKey, setApiKey] = useState(API_KEY || "");
-
-  const [tab, setTab]             = useState("input");
-  const [input, setInput]         = useState("");
+  const [tab, setTab]                   = useState("input");
+  const [input, setInput]               = useState("");
   const [voiceInterim, setVoiceInterim] = useState("");
-  const [pmName, setPmName]       = useState("");
-  const [product, setProduct]     = useState(PRODUCTS[0]);
-  const [priority, setPriority]   = useState("High");
-  const [prdText, setPrdText]     = useState("");
-  const [streaming, setStreaming] = useState(false);
-  const [enhancing, setEnhancing] = useState(false);
-  const [error, setError]         = useState("");
-  const [history, setHistory]     = useState(() => {
+  const [pmName, setPmName]             = useState("");
+  const [product, setProduct]           = useState(PRODUCTS[0]);
+  const [priority, setPriority]         = useState("High");
+  const [prdText, setPrdText]           = useState("");
+  const [streaming, setStreaming]       = useState(false);
+  const [enhancing, setEnhancing]       = useState(false);
+  const [error, setError]               = useState("");
+  const [history, setHistory]           = useState(() => {
     try { return JSON.parse(localStorage.getItem("cw_prd_history") || "[]"); } catch { return []; }
   });
-  const [viewingHist, setViewingHist] = useState(null);
-  const [copied, setCopied]       = useState("");
-  const [downloading, setDownloading] = useState(""); // "docx" | "pdf" | ""
-  const outputRef                 = useRef(null);
+  const [viewingHist, setViewingHist]   = useState(null);
+  const [copied, setCopied]             = useState("");
+  const [downloading, setDownloading]   = useState("");
+  const outputRef                       = useRef(null);
 
-  // Persist history
   useEffect(() => {
     try { localStorage.setItem("cw_prd_history", JSON.stringify(history.slice(0,20))); } catch {}
   }, [history]);
@@ -582,13 +465,12 @@ export default function App() {
     return prdText.includes(`## ${n}.`) || prdText.includes(`\n## ${n} `);
   }).length;
 
-  // Voice transcript handler
   const handleVoiceTranscript = useCallback((text, isFinal) => {
     if (isFinal) { setInput(t => (t + " " + text).trim()); setVoiceInterim(""); }
     else setVoiceInterim(text);
   }, []);
 
-  // Generate PRD with streaming
+  // ── Generate PRD ────────────────────────────────────────────────────────────
   const generatePRD = useCallback(async () => {
     if (!input.trim()) { setError("Please describe your requirement."); return; }
     setError(""); setPrdText(""); setStreaming(true); setTab("output");
@@ -604,8 +486,17 @@ export default function App() {
       });
       setPrdText(prev => {
         const title = prev.match(/^# PRD: (.+)/m)?.[1] || `PRD — ${product}`;
-        const entry = { id: Date.now(), title, product, priority, pmName, date: new Date().toLocaleDateString(), text: prev, prd: prev };
-        setHistory(h => [entry, ...h.slice(0,19)]);
+        const entry = {
+          id: Date.now(),
+          title,
+          product,
+          priority,
+          pmName,
+          date: new Date().toLocaleDateString(),
+          text: prev,
+          prd: prev,
+        };
+        setHistory(h => [entry, ...h.slice(0, 19)]);
         return prev;
       });
     } catch (e) {
@@ -614,15 +505,12 @@ export default function App() {
     } finally { setStreaming(false); }
   }, [input, pmName, product, priority]);
 
-  // Enhance prompt
+  // ── Enhance prompt ──────────────────────────────────────────────────────────
   const enhancePrompt = useCallback(async () => {
     if (!input.trim()) { setError("Write a brief requirement first."); return; }
     setEnhancing(true);
     try {
-      const enhanced = await callClaude({
-        system: ENHANCE_SYSTEM,
-        userMsg: `Product: ${product}\n\n${input}`,
-      });
+      const enhanced = await callClaude({ system: ENHANCE_SYSTEM, userMsg: `Product: ${product}\n\n${input}` });
       if (enhanced) setInput(enhanced);
     } catch (e) { setError(e.message || "Enhancement failed."); }
     setEnhancing(false);
@@ -634,209 +522,73 @@ export default function App() {
     setTimeout(() => setCopied(""), 2000);
   };
 
-  // ── Download as DOCX ────────────────────────────────────────────────────────
+  // ── Download DOCX ───────────────────────────────────────────────────────────
   const downloadDocx = useCallback(async (mdText) => {
     if (!mdText) return;
     setDownloading("docx");
     try {
       await loadScript("https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js");
-      const {
-        Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
-        HeadingLevel, AlignmentType, WidthType, BorderStyle, ShadingType,
-        LevelFormat, PageNumber, Footer,
-      } = window.docx;
-
-      const CW_BLUE_HEX = "003087";
-      const CW_RED_HEX  = "E4002B";
-      const cellBorder  = { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
+      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, HeadingLevel, AlignmentType, WidthType, BorderStyle, ShadingType, LevelFormat, PageNumber, Footer } = window.docx;
+      const CW_BLUE_HEX = "003087"; const CW_RED_HEX = "E4002B";
+      const cellBorder = { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
       const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
-
       const parseInline = (text) => {
         const runs = [];
-        const parts = text.split(/(\*\*[^*]+\*\*)/g);
-        for (const p of parts) {
-          if (/^\*\*(.+)\*\*$/.test(p)) runs.push(new TextRun({ text: p.replace(/\*\*/g,""), bold: true, font:"Arial" }));
+        for (const p of text.split(/(\*\*[^*]+\*\*)/g)) {
+          if (/^\*\*(.+)\*\*$/.test(p)) runs.push(new TextRun({ text: p.replace(/\*\*/g,""), bold:true, font:"Arial" }));
           else if (p) runs.push(new TextRun({ text: p.replace(/`/g,""), font:"Arial" }));
         }
-        return runs.length ? runs : [new TextRun({ text: "", font:"Arial" })];
+        return runs.length ? runs : [new TextRun({ text:"", font:"Arial" })];
       };
-
-      const makeHeaderRow = (cells, colWidths) =>
-        new TableRow({
-          tableHeader: true,
-          children: cells.map((c, i) => new TableCell({
-            borders: cellBorders,
-            shading: { fill: CW_BLUE_HEX, type: ShadingType.CLEAR },
-            width: { size: colWidths[i] || 2000, type: WidthType.DXA },
-            margins: { top:80, bottom:80, left:120, right:120 },
-            children: [new Paragraph({ children: [new TextRun({ text: c, bold:true, color:"FFFFFF", font:"Arial", size:20 })] })],
-          })),
-        });
-
-      const makeDataRow = (cells, colWidths, isEven) =>
-        new TableRow({
-          children: cells.map((c, i) => new TableCell({
-            borders: cellBorders,
-            shading: { fill: isEven ? "F8F9FD" : "FFFFFF", type: ShadingType.CLEAR },
-            width: { size: colWidths[i] || 2000, type: WidthType.DXA },
-            margins: { top:80, bottom:80, left:120, right:120 },
-            children: [new Paragraph({ children: parseInline(c) })],
-          })),
-        });
-
+      const makeHeaderRow = (cells, colWidths) => new TableRow({ tableHeader:true, children: cells.map((c,i) => new TableCell({ borders:cellBorders, shading:{ fill:CW_BLUE_HEX, type:ShadingType.CLEAR }, width:{ size:colWidths[i]||2000, type:WidthType.DXA }, margins:{ top:80,bottom:80,left:120,right:120 }, children:[new Paragraph({ children:[new TextRun({ text:c, bold:true, color:"FFFFFF", font:"Arial", size:20 })] })] })) });
+      const makeDataRow = (cells, colWidths, isEven) => new TableRow({ children: cells.map((c,i) => new TableCell({ borders:cellBorders, shading:{ fill:isEven?"F8F9FD":"FFFFFF", type:ShadingType.CLEAR }, width:{ size:colWidths[i]||2000, type:WidthType.DXA }, margins:{ top:80,bottom:80,left:120,right:120 }, children:[new Paragraph({ children:parseInline(c) })] })) });
       const children = [];
       const lines = mdText.split("\n");
       let i = 0;
-
       while (i < lines.length) {
         const line = lines[i];
-
-        // H1
-        if (/^# /.test(line)) {
-          children.push(new Paragraph({
-            heading: HeadingLevel.HEADING_1,
-            children: [new TextRun({ text: line.slice(2), bold:true, color:CW_BLUE_HEX, font:"Arial", size:40 })],
-            border: { bottom: { style: BorderStyle.SINGLE, size:6, color: CW_RED_HEX, space:1 } },
-            spacing: { before:360, after:200 },
-          }));
-          i++; continue;
-        }
-        // H2
-        if (/^## /.test(line)) {
-          children.push(new Paragraph({
-            heading: HeadingLevel.HEADING_2,
-            children: [new TextRun({ text: line.slice(3), bold:true, color:CW_BLUE_HEX, font:"Arial", size:28 })],
-            border: { left: { style: BorderStyle.SINGLE, size:16, color: CW_RED_HEX, space:8 } },
-            spacing: { before:300, after:140 },
-            indent: { left: 180 },
-          }));
-          i++; continue;
-        }
-        // H3
-        if (/^### /.test(line)) {
-          children.push(new Paragraph({
-            heading: HeadingLevel.HEADING_3,
-            children: [new TextRun({ text: line.slice(4), bold:true, font:"Arial", size:24 })],
-            spacing: { before:220, after:100 },
-          }));
-          i++; continue;
-        }
-        // HR
-        if (/^---/.test(line)) {
-          children.push(new Paragraph({
-            children: [new TextRun("")],
-            border: { bottom: { style: BorderStyle.SINGLE, size:2, color:"E8ECF4", space:1 } },
-            spacing: { before:80, after:80 },
-          }));
-          i++; continue;
-        }
-        // Table
+        if (/^# /.test(line))  { children.push(new Paragraph({ heading:HeadingLevel.HEADING_1, children:[new TextRun({ text:line.slice(2), bold:true, color:CW_BLUE_HEX, font:"Arial", size:40 })], spacing:{ before:360, after:200 } })); i++; continue; }
+        if (/^## /.test(line)) { children.push(new Paragraph({ heading:HeadingLevel.HEADING_2, children:[new TextRun({ text:line.slice(3), bold:true, color:CW_BLUE_HEX, font:"Arial", size:28 })], spacing:{ before:300, after:140 } })); i++; continue; }
+        if (/^### /.test(line)){ children.push(new Paragraph({ heading:HeadingLevel.HEADING_3, children:[new TextRun({ text:line.slice(4), bold:true, font:"Arial", size:24 })], spacing:{ before:220, after:100 } })); i++; continue; }
+        if (/^---/.test(line)) { children.push(new Paragraph({ children:[new TextRun("")], border:{ bottom:{ style:BorderStyle.SINGLE, size:2, color:"E8ECF4", space:1 } }, spacing:{ before:80, after:80 } })); i++; continue; }
         if (/^\| /.test(line) && i+1 < lines.length && /^\|[-| :]+\|/.test(lines[i+1])) {
           const tLines = [];
           while (i < lines.length && /^\|/.test(lines[i])) { tLines.push(lines[i]); i++; }
           const headers = tLines[0].split("|").slice(1,-1).map(c=>c.trim());
-          const rows = tLines.slice(2)
-            .map(r=>r.split("|").slice(1,-1).map(c=>c.trim()))
-            .filter(r=>r.length && !r.every(c=>/^[-:]+$/.test(c)));
-          const totalWidth = 9360;
-          const colW = Math.floor(totalWidth / headers.length);
-          const colWidths = headers.map((_,ci) => ci === headers.length-1 ? totalWidth - colW*(headers.length-1) : colW);
-          children.push(new Table({
-            width: { size: totalWidth, type: WidthType.DXA },
-            columnWidths: colWidths,
-            rows: [
-              makeHeaderRow(headers, colWidths),
-              ...rows.map((r, ri) => makeDataRow(r, colWidths, ri%2===0)),
-            ],
-          }));
-          children.push(new Paragraph({ children:[new TextRun("")], spacing:{after:120} }));
+          const rows = tLines.slice(2).map(r=>r.split("|").slice(1,-1).map(c=>c.trim())).filter(r=>r.length&&!r.every(c=>/^[-:]+$/.test(c)));
+          const totalWidth = 9360; const colW = Math.floor(totalWidth/headers.length);
+          const colWidths = headers.map((_,ci) => ci===headers.length-1 ? totalWidth-colW*(headers.length-1) : colW);
+          children.push(new Table({ width:{ size:totalWidth, type:WidthType.DXA }, columnWidths:colWidths, rows:[makeHeaderRow(headers,colWidths), ...rows.map((r,ri)=>makeDataRow(r,colWidths,ri%2===0))] }));
+          children.push(new Paragraph({ children:[new TextRun("")], spacing:{ after:120 } }));
           continue;
         }
-        // Bullet
-        if (/^[-*] /.test(line)) {
-          children.push(new Paragraph({
-            numbering: { reference:"bullets", level:0 },
-            children: parseInline(line.replace(/^[-*] /,"")),
-            spacing: { after:60 },
-          }));
-          i++; continue;
-        }
-        // Numbered list
-        if (/^\d+\. /.test(line)) {
-          children.push(new Paragraph({
-            numbering: { reference:"numbers", level:0 },
-            children: parseInline(line.replace(/^\d+\. /,"")),
-            spacing: { after:60 },
-          }));
-          i++; continue;
-        }
-        // Bold key:value metadata lines (e.g. **Document Version:** 1.0)
-        if (/^\*\*(.+)\*\*/.test(line)) {
-          children.push(new Paragraph({ children: parseInline(line), spacing:{after:60} }));
-          i++; continue;
-        }
-        // Empty
-        if (!line.trim()) { children.push(new Paragraph({ children:[new TextRun("")], spacing:{after:60} })); i++; continue; }
-        // Normal paragraph
-        children.push(new Paragraph({ children: parseInline(line), spacing:{after:80} }));
+        if (/^[-*] /.test(line))  { children.push(new Paragraph({ numbering:{ reference:"bullets", level:0 }, children:parseInline(line.replace(/^[-*] /,"")), spacing:{ after:60 } })); i++; continue; }
+        if (/^\d+\. /.test(line)) { children.push(new Paragraph({ numbering:{ reference:"numbers", level:0 }, children:parseInline(line.replace(/^\d+\. /,"")), spacing:{ after:60 } })); i++; continue; }
+        if (!line.trim()) { children.push(new Paragraph({ children:[new TextRun("")], spacing:{ after:60 } })); i++; continue; }
+        children.push(new Paragraph({ children:parseInline(line), spacing:{ after:80 } }));
         i++;
       }
-
       const title = mdText.match(/^# PRD: (.+)/m)?.[1] || "ConnectWise PRD";
-
       const doc = new Document({
         title,
-        description: "Generated by ConnectWise PRD Generator",
-        numbering: {
-          config: [
-            { reference:"bullets", levels:[{ level:0, format:LevelFormat.BULLET, text:"•", alignment:AlignmentType.LEFT, style:{ paragraph:{ indent:{ left:720, hanging:360 } } } }] },
-            { reference:"numbers", levels:[{ level:0, format:LevelFormat.DECIMAL, text:"%1.", alignment:AlignmentType.LEFT, style:{ paragraph:{ indent:{ left:720, hanging:360 } } } }] },
-          ]
-        },
-        styles: {
-          default: { document: { run: { font:"Arial", size:24 } } },
-          paragraphStyles: [
-            { id:"Heading1", name:"Heading 1", basedOn:"Normal", next:"Normal", quickFormat:true, run:{ size:40, bold:true, font:"Arial", color:CW_BLUE_HEX }, paragraph:{ spacing:{before:360,after:200}, outlineLevel:0 } },
-            { id:"Heading2", name:"Heading 2", basedOn:"Normal", next:"Normal", quickFormat:true, run:{ size:28, bold:true, font:"Arial", color:CW_BLUE_HEX }, paragraph:{ spacing:{before:300,after:140}, outlineLevel:1 } },
-            { id:"Heading3", name:"Heading 3", basedOn:"Normal", next:"Normal", quickFormat:true, run:{ size:24, bold:true, font:"Arial" }, paragraph:{ spacing:{before:220,after:100}, outlineLevel:2 } },
-          ],
-        },
-        sections: [{
-          properties: {
-            page: { size:{ width:12240, height:15840 }, margin:{ top:1440, right:1440, bottom:1440, left:1440 } }
-          },
-          footers: {
-            default: new Footer({
-              children: [new Paragraph({
-                alignment: AlignmentType.CENTER,
-                children: [
-                  new TextRun({ text:"ConnectWise PRD Generator  |  Page ", font:"Arial", size:18, color:"888888" }),
-                  new TextRun({ children:[PageNumber.CURRENT], font:"Arial", size:18, color:"888888" }),
-                  new TextRun({ text:" of ", font:"Arial", size:18, color:"888888" }),
-                  new TextRun({ children:[PageNumber.TOTAL_PAGES], font:"Arial", size:18, color:"888888" }),
-                ],
-              })],
-            }),
-          },
-          children,
-        }],
+        numbering: { config: [
+          { reference:"bullets", levels:[{ level:0, format:LevelFormat.BULLET, text:"•", alignment:AlignmentType.LEFT, style:{ paragraph:{ indent:{ left:720, hanging:360 } } } }] },
+          { reference:"numbers", levels:[{ level:0, format:LevelFormat.DECIMAL, text:"%1.", alignment:AlignmentType.LEFT, style:{ paragraph:{ indent:{ left:720, hanging:360 } } } }] },
+        ]},
+        styles: { default:{ document:{ run:{ font:"Arial", size:24 } } } },
+        sections: [{ properties:{ page:{ size:{ width:12240, height:15840 }, margin:{ top:1440, right:1440, bottom:1440, left:1440 } } },
+          footers: { default: new Footer({ children:[new Paragraph({ alignment:AlignmentType.CENTER, children:[new TextRun({ text:"ConnectWise PRD Generator  |  Page ", font:"Arial", size:18, color:"888888" }), new TextRun({ children:[PageNumber.CURRENT], font:"Arial", size:18, color:"888888" }), new TextRun({ text:" of ", font:"Arial", size:18, color:"888888" }), new TextRun({ children:[PageNumber.TOTAL_PAGES], font:"Arial", size:18, color:"888888" })] })] }) },
+          children }],
       });
-
       const blob = await Packer.toBlob(doc);
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${title.replace(/[^a-z0-9]/gi,"_")}.docx`;
-      a.click();
+      const a = document.createElement("a"); a.href = url; a.download = `${title.replace(/[^a-z0-9]/gi,"_")}.docx`; a.click();
       URL.revokeObjectURL(url);
-    } catch (e) {
-      console.error("DOCX error:", e);
-      alert("DOCX export failed: " + e.message);
-    }
+    } catch (e) { console.error("DOCX error:", e); alert("DOCX export failed: " + e.message); }
     setDownloading("");
   }, []);
 
-  // ── Download as PDF ─────────────────────────────────────────────────────────
+  // ── Download PDF ────────────────────────────────────────────────────────────
   const downloadPdf = useCallback(async (mdText) => {
     if (!mdText || !outputRef.current) return;
     setDownloading("pdf");
@@ -846,88 +598,51 @@ export default function App() {
         loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"),
       ]);
       const { jsPDF } = window.jspdf;
-
-      // Clone the rendered PRD node, style for clean PDF capture
       const source = outputRef.current;
       const clone = source.cloneNode(true);
       clone.style.cssText = "position:fixed;top:0;left:0;width:900px;padding:40px;background:white;z-index:-9999;overflow:visible;max-height:none;font-family:'Segoe UI',Arial,sans-serif;";
       document.body.appendChild(clone);
-
-      const canvas = await window.html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        width: 900,
-        windowWidth: 900,
-      });
+      const canvas = await window.html2canvas(clone, { scale:2, useCORS:true, logging:false, backgroundColor:"#ffffff", width:900, windowWidth:900 });
       document.body.removeChild(clone);
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.92);
       const pdf = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
       const pdfW = pdf.internal.pageSize.getWidth();
       const pdfH = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const usableW = pdfW - margin * 2;
+      const margin = 10; const usableW = pdfW - margin * 2;
       const imgH = (canvas.height / canvas.width) * usableW;
-      let posY = margin;
       let remaining = imgH;
-
-      // Multi-page slicing
       while (remaining > 0) {
         const pageH = Math.min(pdfH - margin * 2, remaining);
         const srcY = (imgH - remaining) / imgH * canvas.height;
         const srcH = pageH / imgH * canvas.height;
-
-        // Create a temp canvas for this slice
         const pageCanvas = document.createElement("canvas");
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = srcH;
-        const ctx = pageCanvas.getContext("2d");
-        ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
-        const sliceData = pageCanvas.toDataURL("image/jpeg", 0.92);
-
-        pdf.addImage(sliceData, "JPEG", margin, margin, usableW, pageH);
+        pageCanvas.width = canvas.width; pageCanvas.height = srcH;
+        pageCanvas.getContext("2d").drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+        pdf.addImage(pageCanvas.toDataURL("image/jpeg", 0.92), "JPEG", margin, margin, usableW, pageH);
         remaining -= pageH;
-        if (remaining > 0) { pdf.addPage(); }
+        if (remaining > 0) pdf.addPage();
       }
-
       const title = mdText.match(/^# PRD: (.+)/m)?.[1] || "ConnectWise_PRD";
       pdf.save(`${title.replace(/[^a-z0-9]/gi,"_")}.pdf`);
-    } catch (e) {
-      console.error("PDF error:", e);
-      alert("PDF export failed: " + e.message);
-    }
+    } catch (e) { console.error("PDF error:", e); alert("PDF export failed: " + e.message); }
     setDownloading("");
   }, []);
 
   const wordCount = input.trim().split(/\s+/).filter(Boolean).length;
 
-  if (!apiKey) return <ApiKeyGate onKey={setApiKey} />;
-
   return (
     <div style={{ minHeight:"100vh", background:CW_LIGHT, fontFamily:"'Segoe UI',system-ui,sans-serif" }}>
 
       {/* ── Header ── */}
-      <header style={{
-        background: `linear-gradient(135deg, ${CW_BLUE} 0%, #00215e 100%)`,
-        height:58, display:"flex", alignItems:"center", padding:"0 28px",
-        boxShadow:"0 2px 16px rgba(0,0,80,.35)", position:"sticky", top:0, zIndex:100
-      }}>
-        <CWLogo height={36} />
+      <header style={{ background:`linear-gradient(135deg,${CW_BLUE} 0%,#00215e 100%)`, height:58, display:"flex", alignItems:"center", padding:"0 28px", boxShadow:"0 2px 16px rgba(0,0,80,.35)", position:"sticky", top:0, zIndex:100 }}>
+        <CWLogo />
         <div style={{ width:1, height:28, background:"rgba(255,255,255,.18)", margin:"0 18px" }} />
-        <span style={{ color:"rgba(255,255,255,.75)", fontSize:13, fontWeight:500, letterSpacing:.3 }}>
-          PRD Generator · Product Management
-        </span>
+        <span style={{ color:"rgba(255,255,255,.75)", fontSize:13, fontWeight:500, letterSpacing:.3 }}>PRD Generator · Product Management</span>
         <div style={{ marginLeft:"auto", display:"flex", gap:10, alignItems:"center" }}>
           {history.length > 0 && (
             <button onClick={()=>setTab("history")} style={{ background:"rgba(255,255,255,.12)", border:"1px solid rgba(255,255,255,.22)", color:"white", padding:"6px 14px", borderRadius:8, cursor:"pointer", fontSize:12, fontWeight:600 }}>
               📚 History ({history.length})
             </button>
           )}
-          <button onClick={()=>setApiKey("")} title="Change API key" style={{ background:"rgba(255,255,255,.08)", border:"1px solid rgba(255,255,255,.15)", color:"rgba(255,255,255,.6)", padding:"6px 10px", borderRadius:8, cursor:"pointer", fontSize:11 }}>
-            🔑
-          </button>
         </div>
       </header>
 
@@ -940,27 +655,16 @@ export default function App() {
             { id:"output",  label:`📄 PRD${prdText ? ` · ${completedSections}/19` : ""}` },
             { id:"history", label:`📚 History${history.length ? ` (${history.length})` : ""}` },
           ].map(t => (
-            <button key={t.id} onClick={()=>setTab(t.id)} style={{
-              padding:"8px 22px", border:"none", cursor:"pointer", borderRadius:8,
-              fontWeight:600, fontSize:13,
-              background: tab===t.id ? CW_BLUE : "transparent",
-              color: tab===t.id ? "white" : "#666",
-              transition:"all .18s"
-            }}>{t.label}</button>
+            <button key={t.id} onClick={()=>setTab(t.id)} style={{ padding:"8px 22px", border:"none", cursor:"pointer", borderRadius:8, fontWeight:600, fontSize:13, background:tab===t.id?CW_BLUE:"transparent", color:tab===t.id?"white":"#666", transition:"all .18s" }}>{t.label}</button>
           ))}
         </div>
 
-        {/* ══════════════════════ INPUT TAB ══════════════════════ */}
+        {/* ══ INPUT TAB ══ */}
         {tab === "input" && (
           <div style={{ display:"grid", gridTemplateColumns:"1fr 310px", gap:20, alignItems:"start" }}>
-
             <div style={{ background:"white", borderRadius:14, padding:28, boxShadow:"0 1px 8px rgba(0,0,0,.08)" }}>
               <h2 style={{ margin:"0 0 4px", color:CW_BLUE, fontSize:19, fontWeight:800 }}>New PRD</h2>
-              <p style={{ margin:"0 0 22px", color:"#888", fontSize:13 }}>
-                Describe your requirement — or <strong>speak it</strong> using the mic. The AI generates a full 19-section PRD.
-              </p>
-
-              {/* Product + Priority */}
+              <p style={{ margin:"0 0 22px", color:"#888", fontSize:13 }}>Describe your requirement — or <strong>speak it</strong> using the mic.</p>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:16 }}>
                 <label style={{ display:"flex", flexDirection:"column", gap:5 }}>
                   <span style={{ fontSize:11, fontWeight:700, color:"#555", textTransform:"uppercase", letterSpacing:.6 }}>Product Area *</span>
@@ -975,20 +679,15 @@ export default function App() {
                   </select>
                 </label>
               </div>
-
-              {/* PM Name */}
               <label style={{ display:"flex", flexDirection:"column", gap:5, marginBottom:16 }}>
                 <span style={{ fontSize:11, fontWeight:700, color:"#555", textTransform:"uppercase", letterSpacing:.6 }}>PM Name (optional)</span>
-                <input value={pmName} onChange={e=>setPmName(e.target.value)} placeholder="e.g. Jane Smith"
-                  style={{ padding:"9px 11px", border:"1.5px solid #dde3f0", borderRadius:8, fontSize:13, outline:"none" }} />
+                <input value={pmName} onChange={e=>setPmName(e.target.value)} placeholder="e.g. Jane Smith" style={{ padding:"9px 11px", border:"1.5px solid #dde3f0", borderRadius:8, fontSize:13, outline:"none" }} />
               </label>
-
-              {/* Requirement textarea + mic */}
               <div style={{ marginBottom:14 }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
                   <span style={{ fontSize:11, fontWeight:700, color:"#555", textTransform:"uppercase", letterSpacing:.6 }}>Requirement Description *</span>
                   <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                    <span style={{ fontSize:11, color: wordCount>20 ? "#2e7d32" : "#bbb" }}>{wordCount} words</span>
+                    <span style={{ fontSize:11, color:wordCount>20?"#2e7d32":"#bbb" }}>{wordCount} words</span>
                     <VoiceButton onTranscript={handleVoiceTranscript} disabled={streaming||enhancing} />
                   </div>
                 </div>
@@ -996,60 +695,26 @@ export default function App() {
                   <textarea
                     value={input + (voiceInterim ? " " + voiceInterim : "")}
                     onChange={e=>{ setInput(e.target.value); setVoiceInterim(""); setError(""); }}
-                    placeholder={"Example:\n\nWe need AI-powered alert triage in our MDR product. Currently SOC analysts manually review every alert causing fatigue and slow response. We want the system to auto-classify alerts by severity, suggest remediation steps, and suppress known false positives. Target: MSP partners managing 50–500 endpoints per client..."}
+                    placeholder={"Example:\n\nWe need AI-powered alert triage in our MDR product. Currently SOC analysts manually review every alert causing fatigue. We want the system to auto-classify alerts by severity, suggest remediation steps, and suppress false positives. Target: MSP partners managing 50–500 endpoints per client..."}
                     rows={9}
-                    style={{
-                      width:"100%", padding:"11px 13px",
-                      border:`1.5px solid ${error?CW_RED:"#dde3f0"}`,
-                      borderRadius:8, fontSize:13, resize:"vertical", lineHeight:1.7,
-                      outline:"none", color:"#333", fontFamily:"inherit", boxSizing:"border-box",
-                      background: voiceInterim ? "#fffbf0" : "white",
-                      transition:"background .3s"
-                    }}
+                    style={{ width:"100%", padding:"11px 13px", border:`1.5px solid ${error?CW_RED:"#dde3f0"}`, borderRadius:8, fontSize:13, resize:"vertical", lineHeight:1.7, outline:"none", color:"#333", fontFamily:"inherit", boxSizing:"border-box", background:voiceInterim?"#fffbf0":"white" }}
                   />
-                  {voiceInterim && (
-                    <div style={{ position:"absolute", bottom:10, right:12, fontSize:11, color:CW_RED, display:"flex", alignItems:"center", gap:5 }}>
-                      <span style={{ animation:"blink 1s infinite" }}>●</span> Listening...
-                    </div>
-                  )}
+                  {voiceInterim && <div style={{ position:"absolute", bottom:10, right:12, fontSize:11, color:CW_RED, display:"flex", alignItems:"center", gap:5 }}><span style={{ animation:"blink 1s infinite" }}>●</span> Listening...</div>}
                 </div>
                 {error && <div style={{ color:CW_RED, fontSize:12, marginTop:4 }}>⚠ {error}</div>}
               </div>
-
-              {/* Mic hint */}
-              <div style={{ marginBottom:14, padding:"8px 12px", background:`${CW_BLUE}08`, borderRadius:8, fontSize:12, color:"#666", display:"flex", alignItems:"center", gap:8 }}>
-                🎤 <span>Tap the mic button to speak your requirement — works best in Chrome/Edge.</span>
-              </div>
-
-              {/* Action buttons */}
               <div style={{ display:"flex", gap:10 }}>
-                <button onClick={enhancePrompt} disabled={enhancing||streaming} style={{
-                  flex:1, padding:"11px", background:"white", border:`1.5px solid ${CW_BLUE}`,
-                  color:CW_BLUE, borderRadius:8, fontSize:13, fontWeight:600,
-                  cursor:enhancing?"wait":"pointer", opacity:enhancing?.6:1, transition:"opacity .2s"
-                }}>
+                <button onClick={enhancePrompt} disabled={enhancing||streaming} style={{ flex:1, padding:"11px", background:"white", border:`1.5px solid ${CW_BLUE}`, color:CW_BLUE, borderRadius:8, fontSize:13, fontWeight:600, cursor:enhancing?"wait":"pointer", opacity:enhancing?.6:1 }}>
                   {enhancing ? "✨ Enhancing..." : "✨ Enhance Prompt"}
                 </button>
-                <button onClick={generatePRD} disabled={streaming||enhancing} style={{
-                  flex:2, padding:"11px",
-                  background: streaming ? "#999" : `linear-gradient(135deg,${CW_RED},#c00020)`,
-                  color:"white", border:"none", borderRadius:8, fontSize:14,
-                  fontWeight:700, cursor:streaming?"not-allowed":"pointer", transition:"all .2s",
-                  boxShadow: streaming ? "none" : `0 3px 12px ${CW_RED}50`
-                }}>
+                <button onClick={generatePRD} disabled={streaming||enhancing} style={{ flex:2, padding:"11px", background:streaming?"#999":`linear-gradient(135deg,${CW_RED},#c00020)`, color:"white", border:"none", borderRadius:8, fontSize:14, fontWeight:700, cursor:streaming?"not-allowed":"pointer" }}>
                   {streaming ? "⚙️ Generating PRD..." : "🚀 Generate PRD"}
                 </button>
               </div>
-
-              {streaming && (
-                <div style={{ marginTop:14, padding:"10px 14px", background:"#f0f4ff", borderRadius:8, fontSize:12.5, color:CW_BLUE, display:"flex", alignItems:"center", gap:8 }}>
-                  <span style={{ animation:"blink 1s infinite" }}>●</span>
-                  Streaming PRD live — all 19 sections appearing in real time...
-                </div>
-              )}
+              {streaming && <div style={{ marginTop:14, padding:"10px 14px", background:"#f0f4ff", borderRadius:8, fontSize:12.5, color:CW_BLUE, display:"flex", alignItems:"center", gap:8 }}><span style={{ animation:"blink 1s infinite" }}>●</span> Streaming PRD live — all 19 sections appearing in real time...</div>}
             </div>
 
-            {/* ── Sidebar ── */}
+            {/* Sidebar */}
             <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
               <div style={{ background:"white", borderRadius:12, padding:18, boxShadow:"0 1px 6px rgba(0,0,0,.08)" }}>
                 <div style={{ fontSize:12, fontWeight:700, color:CW_BLUE, marginBottom:12, textTransform:"uppercase", letterSpacing:.6 }}>19 Sections Auto-Generated</div>
@@ -1060,37 +725,17 @@ export default function App() {
                   </div>
                 ))}
               </div>
-
               <div style={{ background:`linear-gradient(135deg,${CW_BLUE}0d,${CW_RED}08)`, border:`1px solid ${CW_BLUE}18`, borderRadius:12, padding:16 }}>
                 <div style={{ fontSize:12, fontWeight:700, color:CW_BLUE, marginBottom:10, textTransform:"uppercase", letterSpacing:.6 }}>💡 Tips for quality PRDs</div>
                 {["State partner type: MSP, MSSP, or TSP","Describe the pain & current workaround","Include scale: endpoints, partners, tickets","Mention related ConnectWise products","Add known compliance requirements","Use 🎤 voice to speak naturally","Hit ✨ Enhance Prompt for richer output"].map((tip,i)=>(
-                  <div key={i} style={{ fontSize:12, color:"#444", padding:"4px 0", borderBottom:i<6?"1px solid rgba(0,0,80,.06)":"none", display:"flex", gap:6 }}>
-                    <span style={{ color:CW_RED, flexShrink:0 }}>›</span>{tip}
-                  </div>
+                  <div key={i} style={{ fontSize:12, color:"#444", padding:"4px 0", borderBottom:i<6?"1px solid rgba(0,0,80,.06)":"none", display:"flex", gap:6 }}><span style={{ color:CW_RED, flexShrink:0 }}>›</span>{tip}</div>
                 ))}
-              </div>
-
-              {/* Vercel deploy badge */}
-              <div style={{ background:"#0a0a0a", borderRadius:12, padding:16, color:"white" }}>
-                <div style={{ fontSize:12, fontWeight:700, marginBottom:8, display:"flex", alignItems:"center", gap:6 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 19.5h20L12 2z"/></svg>
-                  Deploy to Vercel
-                </div>
-                <div style={{ fontSize:11.5, color:"#aaa", lineHeight:1.6, marginBottom:10 }}>
-                  1. Push the <code style={{ background:"#222", padding:"1px 4px", borderRadius:3 }}>src/</code> folder to GitHub<br/>
-                  2. Import repo in Vercel<br/>
-                  3. Add <code style={{ background:"#222", padding:"1px 4px", borderRadius:3 }}>REACT_APP_ANTHROPIC_API_KEY</code><br/>
-                  4. Deploy ✓
-                </div>
-                <a href="https://vercel.com/new" target="_blank" rel="noreferrer" style={{ display:"block", textAlign:"center", padding:"7px", background:"white", color:"black", borderRadius:7, fontSize:12, fontWeight:700, textDecoration:"none" }}>
-                  Open Vercel →
-                </a>
               </div>
             </div>
           </div>
         )}
 
-        {/* ══════════════════════ OUTPUT TAB ══════════════════════ */}
+        {/* ══ OUTPUT TAB ══ */}
         {tab === "output" && (
           <div>
             {prdText && (
@@ -1105,41 +750,13 @@ export default function App() {
                   <button onClick={()=>doCopy(prdText,"md")} style={{ padding:"7px 15px", background:"white", border:`1.5px solid ${CW_BLUE}`, color:CW_BLUE, borderRadius:8, fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
                     {copied==="md" ? "✅ Copied!" : "📋 Copy Markdown"}
                   </button>
-                  <button onClick={()=>doCopy(prdText.replace(/^#{1,3} /gm,"").replace(/\*\*/g,"").replace(/`/g,""),"conf")} style={{ padding:"7px 15px", background:"white", border:"1.5px solid #888", color:"#555", borderRadius:8, fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
-                    {copied==="conf" ? "✅ Copied!" : "🔗 Copy for Confluence"}
+                  <button onClick={()=>downloadDocx(prdText)} disabled={!!downloading||streaming} style={{ padding:"7px 15px", borderRadius:8, fontSize:12.5, fontWeight:700, cursor:downloading?"wait":"pointer", background:downloading==="docx"?"#ccc":CW_BLUE, color:"white", border:"none", display:"flex", alignItems:"center", gap:6 }}>
+                    {downloading==="docx" ? "⏳ Building DOCX…" : <><WordIcon /> Download DOCX</>}
                   </button>
-                  {/* ── Download buttons ── */}
-                  <button
-                    onClick={()=>downloadDocx(prdText)}
-                    disabled={!!downloading || streaming}
-                    style={{
-                      padding:"7px 15px", borderRadius:8, fontSize:12.5, fontWeight:700, cursor: downloading?"wait":"pointer",
-                      background: downloading==="docx" ? "#ccc" : CW_BLUE,
-                      color:"white", border:"none",
-                      opacity: downloading && downloading!=="docx" ? .5 : 1,
-                      display:"flex", alignItems:"center", gap:6,
-                    }}
-                  >
-                    {downloading==="docx"
-                      ? <><span style={{ animation:"blink .8s infinite" }}>⏳</span> Building DOCX…</>
-                      : <><WordIcon /> Download DOCX</>}
+                  <button onClick={()=>downloadPdf(prdText)} disabled={!!downloading||streaming} style={{ padding:"7px 15px", borderRadius:8, fontSize:12.5, fontWeight:700, cursor:downloading?"wait":"pointer", background:downloading==="pdf"?"#ccc":CW_RED, color:"white", border:"none", display:"flex", alignItems:"center", gap:6 }}>
+                    {downloading==="pdf" ? "⏳ Building PDF…" : <><PdfIcon /> Download PDF</>}
                   </button>
-                  <button
-                    onClick={()=>downloadPdf(prdText)}
-                    disabled={!!downloading || streaming}
-                    style={{
-                      padding:"7px 15px", borderRadius:8, fontSize:12.5, fontWeight:700, cursor: downloading?"wait":"pointer",
-                      background: downloading==="pdf" ? "#ccc" : CW_RED,
-                      color:"white", border:"none",
-                      opacity: downloading && downloading!=="pdf" ? .5 : 1,
-                      display:"flex", alignItems:"center", gap:6,
-                    }}
-                  >
-                    {downloading==="pdf"
-                      ? <><span style={{ animation:"blink .8s infinite" }}>⏳</span> Building PDF…</>
-                      : <><PdfIcon /> Download PDF</>}
-                  </button>
-                  <button onClick={()=>{ setPrdText(""); setTab("input"); }} style={{ padding:"7px 15px", background:"white", border:`1.5px solid #ccc`, color:"#555", borderRadius:8, fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
+                  <button onClick={()=>{ setPrdText(""); setTab("input"); }} style={{ padding:"7px 15px", background:"white", border:"1.5px solid #ccc", color:"#555", borderRadius:8, fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
                     + New PRD
                   </button>
                 </div>
@@ -1154,15 +771,13 @@ export default function App() {
               <div style={{ background:"white", borderRadius:14, padding:60, textAlign:"center", boxShadow:"0 1px 8px rgba(0,0,0,.08)" }}>
                 <div style={{ fontSize:44, marginBottom:12 }}>📄</div>
                 <div style={{ color:"#bbb", fontSize:15 }}>No PRD generated yet.</div>
-                <button onClick={()=>setTab("input")} style={{ marginTop:16, padding:"9px 22px", background:CW_BLUE, color:"white", border:"none", borderRadius:8, cursor:"pointer", fontWeight:700, fontSize:13 }}>
-                  ← Go to Input
-                </button>
+                <button onClick={()=>setTab("input")} style={{ marginTop:16, padding:"9px 22px", background:CW_BLUE, color:"white", border:"none", borderRadius:8, cursor:"pointer", fontWeight:700, fontSize:13 }}>← Go to Input</button>
               </div>
             )}
           </div>
         )}
 
-        {/* ══════════════════════ HISTORY TAB ══════════════════════ */}
+        {/* ══ HISTORY TAB ══ */}
         {tab === "history" && (
           <div>
             {viewingHist ? (
@@ -1171,88 +786,23 @@ export default function App() {
                   <button onClick={()=>setViewingHist(null)} style={{ padding:"7px 16px", background:"white", border:"1.5px solid #ccc", color:"#333", borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:600 }}>
                     ← Back to History
                   </button>
-                  <div style={{ display:"flex", gap:8 }}>
-                    <button onClick={()=>doCopy(viewingHist.prd || viewingHist.text,"hist_md")}
-
+                  <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                    <button onClick={()=>doCopy(viewingHist.prd || viewingHist.text || "", "hist_md")} style={{ padding:"7px 16px", background:"white", border:`1.5px solid ${CW_BLUE}`, color:CW_BLUE, borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:600 }}>
+                      {copied==="hist_md" ? "✅ Copied!" : "📋 Copy Markdown"}
+                    </button>
+                    <button onClick={()=>downloadDocx(viewingHist.prd || viewingHist.text || "")} disabled={!!downloading} style={{ padding:"7px 16px", background:downloading==="docx"?"#ccc":CW_BLUE, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:downloading?"wait":"pointer", fontWeight:600, display:"flex", alignItems:"center", gap:6 }}>
                       {downloading==="docx" ? "⏳ Building…" : <><WordIcon /> DOCX</>}
                     </button>
-                    <button
-                      onClick={()=>downloadPdf(viewingHist.prd || viewingHist.text)}
-
-Find:
-jsonClick={()=>{ setPrdText(viewingHist.text); setTab("output"); setViewingHist(null); }}
-Replace with:
-jsonClick={()=>{ setPrdText(viewingHist.prd || viewingHist.text); setTab("output"); setViewingHist(null); }}
-
-Also find where history is saved and add the missing fields. Search for setHistory and make sure it looks like this:
-Find:
-jssetHistory(h => [{ title: title || product, prd: text, ts: new Date().toLocaleString() }, ...h.slice(0, 9)])
-Replace with:
-jssetHistory(h => [{
-  id: Date.now(),
-  title: title || product,
-  prd: text,
-  text: text,
-  product: product,
-  priority: priority,
-  pmName: pmName,
-  date: new Date().toLocaleDateString()
-}, ...h.slice(0, 9)])
-
-Summary of what's happening:
-LocationField usedStatusSave to historyprd: text✅ Saves correctlyDisplay in viewviewingHist.text❌ .text doesn't exist → blankCopy MarkdownviewingHist.text❌ Same issueDownload DOCXviewingHist.text❌ Same issueDownload PDFviewingHist.text❌ Same issue
-One commit fixing all 5 lines → Vercel redeploys → everything works ✅Sonnet 4.6 LowClaude is AI and can make mistakes. Please double-check responses.Connectwise prd generator · JSXCopy
-                      disabled={!!downloading}
-                      style={{ padding:"7px 16px", background:downloading==="pdf"?"#ccc":CW_RED, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:downloading?"wait":"pointer", fontWeight:600, display:"flex", alignItems:"center", gap:6 }}
-                    >
+                    <button onClick={()=>downloadPdf(viewingHist.prd || viewingHist.text || "")} disabled={!!downloading} style={{ padding:"7px 16px", background:downloading==="pdf"?"#ccc":CW_RED, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:downloading?"wait":"pointer", fontWeight:600, display:"flex", alignItems:"center", gap:6 }}>
                       {downloading==="pdf" ? "⏳ Building…" : <><PdfIcon /> PDF</>}
                     </button>
-                    <button onClick={()=>{ setPrdText(viewingHist.prd || viewingHist.text); setTab("output"); setViewingHist(null); }} style={{ padding:"7px 16px", background:CW_BLUE, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:600 }}>
+                    <button onClick={()=>{ setPrdText(viewingHist.prd || viewingHist.text || ""); setTab("output"); setViewingHist(null); }} style={{ padding:"7px 16px", background:CW_BLUE, color:"white", border:"none", borderRadius:8, fontSize:13, cursor:"pointer", fontWeight:600 }}>
                       Open in PRD View →
                     </button>
                   </div>
                 </div>
                 <div style={{ background:"white", borderRadius:14, padding:36, boxShadow:"0 1px 8px rgba(0,0,0,.08)", maxHeight:"74vh", overflowY:"auto" }}>
-                 <MDRenderer content={viewingHist.prd || viewingHist.text || ""} />
-
-Find:
-jsonClick={()=>doCopy(viewingHist.text,"hist_md")}
-Replace with:
-jsonClick={()=>doCopy(viewingHist.prd || viewingHist.text,"hist_md")}
-
-Find:
-jsonClick={()=>downloadDocx(viewingHist.text)}
-Replace with:
-jsonClick={()=>downloadDocx(viewingHist.prd || viewingHist.text)}
-
-Find:
-jsonClick={()=>downloadPdf(viewingHist.text)}
-Replace with:
-jsonClick={()=>downloadPdf(viewingHist.prd || viewingHist.text)}
-
-Find:
-jsonClick={()=>{ setPrdText(viewingHist.text); setTab("output"); setViewingHist(null); }}
-Replace with:
-jsonClick={()=>{ setPrdText(viewingHist.prd || viewingHist.text); setTab("output"); setViewingHist(null); }}
-
-Also find where history is saved and add the missing fields. Search for setHistory and make sure it looks like this:
-Find:
-jssetHistory(h => [{ title: title || product, prd: text, ts: new Date().toLocaleString() }, ...h.slice(0, 9)])
-Replace with:
-jssetHistory(h => [{
-  id: Date.now(),
-  title: title || product,
-  prd: text,
-  text: text,
-  product: product,
-  priority: priority,
-  pmName: pmName,
-  date: new Date().toLocaleDateString()
-}, ...h.slice(0, 9)])
-
-Summary of what's happening:
-LocationField usedStatusSave to historyprd: text✅ Saves correctlyDisplay in viewviewingHist.text❌ .text doesn't exist → blankCopy MarkdownviewingHist.text❌ Same issueDownload DOCXviewingHist.text❌ Same issueDownload PDFviewingHist.text❌ Same issue
-One commit fixing all 5 lines → Vercel redeploys → everything works ✅Sonnet 4.6 LowClaude is AI and can make mistakes. Please double-check responses.Connectwise prd generator · JSXCopy
+                  <MDRenderer content={viewingHist.prd || viewingHist.text || ""} />
                 </div>
               </div>
             ) : history.length === 0 ? (
