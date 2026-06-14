@@ -337,7 +337,7 @@ export default function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "claude-haiku-4-5",
-        max_tokens: 2500,
+        max_tokens: 3000,
         system,
         messages: [{ role:"user", content: userMsg }]
       })
@@ -355,91 +355,173 @@ export default function App() {
 
     const userMsg = `Product: ${product}\nPriority: ${priority}\nPM: ${pmName || "ConnectWise PM"}\n\nRequirement:\n${input}`;
 
-    // ── STRICT section assignments — each call writes ONLY its numbered sections ──
-    const BASE = `You are a senior ConnectWise Product Manager. The user needs a PRD for: ${product}.
-Context: ${userMsg}
-RULES: Write ONLY the section numbers listed. Do NOT write any other section numbers. Do NOT add introductions, summaries, or conclusions. Start immediately with the first ## heading assigned to you. Be detailed and use tables where appropriate.`;
+    // ── 5 parallel calls — fewer sections per call = no truncation ──────────────
+    const makePrompt = (sections, extra) =>
+      `You are a senior ConnectWise Product Manager writing a PRD for: ${product}.
+Requirement: ${input}
+Priority: ${priority} | PM: ${pmName || "ConnectWise PM"}
 
-    const SYSTEM_PART1 = BASE + `
+CRITICAL RULES:
+- Write ONLY the sections listed below. No other sections.
+- Start IMMEDIATELY with the first ## heading. No preamble.
+- Number every heading EXACTLY as shown (## 1., ## 2., etc.)
+- Be detailed. Use markdown tables where appropriate.
+${extra || ""}
 
-Write ONLY these 5 sections (numbered exactly as shown):
+${sections}`;
 
-## 1. Executive Summary
+    const SYSTEM_PART1 = makePrompt(
+`## 1. Executive Summary
+Write 3-5 sentences covering what is being built, why it matters to ConnectWise partners, and business impact.
+
 ## 2. PRD Summary Table
+| Field | Details |
+|---|---|
+(fill all rows: Product Area, Feature Name, Priority, Target Release, PM Owner, Engineering Team, Partner Segments, Effort Estimate, Business Value)
+
 ## 3. Objectives & Outcomes
+### Business Objectives
+### Desired Outcomes
+### Why Now?
+
 ## 4. Scope
+### In Scope
+### Out of Scope
+
 ## 5. Partner Segmentation
+| Partner Type | Description | Key Need | Impact Level |
+|---|---|---|---|
+(MSP, MSSP, TSP rows)
 
-STOP after ## 5. Partner Segmentation. Do NOT write ## 6 or any higher number.`;
+STOP HERE. Do not write ## 6 or higher.`);
 
-    const SYSTEM_PART2 = BASE + `
+    const SYSTEM_PART2 = makePrompt(
+`## 6. Feature Comparison Across Products
+| Feature | Current State | Proposed State | Competitor Benchmark |
+|---|---|---|---|
 
-Write ONLY these 5 sections (numbered exactly as shown):
-
-## 6. Feature Comparison Across Products
 ## 7. Feature Gaps and Pain Points
+### Feature Gaps
+### Migration Challenges
+### Display Issues
+### Data Integrity Concerns
+
 ## 8. Success KPIs
+| KPI | Baseline | Target | Measurement Method |
+|---|---|---|---|
+(write at least 6 KPI rows)
+
 ## 9. Assumptions & Dependencies
+### Assumptions
+| Assumption | Risk Level | Mitigation |
+|---|---|---|
+### Dependencies
+| Dependency | Owner | Risk if Delayed |
+|---|---|---|
+
 ## 10. Milestones & Phased Delivery
+| Phase | Milestone | Description | Target Date | Owner |
+|---|---|---|---|---|
 
-STOP after ## 10. Milestones & Phased Delivery. Do NOT write ## 11 or any higher number.`;
+STOP HERE. Do not write ## 11 or higher.`);
 
-    const SYSTEM_PART3 = BASE + `
+    const SYSTEM_PART3 = makePrompt(
+`## 11. Personas and Usage Scenarios
+### Primary Persona
+**Name:** [name] | **Role:** [role] | **Goals:** [goals] | **Pain Points:** [pain points]
+### Other Personas
+(describe 2 more personas briefly)
+### Key Scenarios
+- Scenario 1: ...
+- Scenario 2: ...
+### Step-by-Step Example
+(numbered walkthrough)
 
-Write ONLY these 4 sections (numbered exactly as shown):
-
-## 11. Personas and Usage Scenarios
 ## 12. Detailed Requirements Table
-## 13. Non-Functional Requirements
+| ID | Requirement | Priority | User Story | Acceptance Criteria | Notes |
+|---|---|---|---|---|---|
+(write EXACTLY 8 rows: REQ-001 through REQ-008. Must Have / Should Have / Nice to Have)
+
+STOP HERE. Do not write ## 13 or higher.`,
+"Section 12 MUST have exactly 8 requirement rows. Do not skip any.");
+
+    const SYSTEM_PART4 = makePrompt(
+`## 13. Non-Functional Requirements
+| Category | Requirement | Target |
+|---|---|---|
+| Performance | | |
+| Scalability | | |
+| Security | | |
+| Availability | | |
+| Compliance | SOC 2 / GDPR / HIPAA | |
+| Usability | | |
+
 ## 14. Migration Requirements
-
-For section 12, write minimum 8 detailed requirement rows in the table.
-STOP after ## 14. Migration Requirements. Do NOT write ## 15 or any higher number.`;
-
-    const SYSTEM_PART4 = BASE + `
-
-Write ONLY these 5 sections (numbered exactly as shown):
+Describe: data migration approach, partner migration plan, rollback strategy. Use a table.
 
 ## 15. Release Readiness Requirements
-## 16. Risks & Mitigation
-## 17. Quantitative Insights
-## 18. Out of Scope
-## 19. Reference Links
+| Team | Requirements | Owner | Due Date |
+|---|---|---|---|
+| Sales | | | |
+| Customer Success | | | |
+| Support | | | |
+| Marketing | | | |
+| Engineering/QA | | | |
+| Legal/Compliance | | | |
 
-For section 16, write minimum 5 risks.
-End with: ---
+STOP HERE. Do not write ## 16 or higher.`);
+
+    const SYSTEM_PART5 = makePrompt(
+`## 16. Risks & Mitigation
+| Risk | Likelihood | Impact | Mitigation Strategy | Owner |
+|---|---|---|---|---|
+(write EXACTLY 5 risk rows)
+
+## 17. Quantitative Insights
+Write 3-4 paragraphs covering: market size, number of partners affected, estimated ARR impact, support ticket volumes.
+
+## 18. Out of Scope
+List each excluded item as a bullet with rationale.
+
+## 19. Reference Links
+| Resource | Link |
+|---|---|
+| ConnectWise Product Docs | https://docs.connectwise.com |
+| Internal Confluence | [Add internal link] |
+| Competitor Analysis | [To be added] |
+| Customer Research | [To be added] |
+
+---
 *Generated by ConnectWise PRD Generator*
 
-STOP after ## 19. Reference Links. Do NOT repeat any earlier sections.`;
+STOP HERE. Do not repeat any earlier sections.`,
+"Section 16 MUST have exactly 5 risk rows. Sections 17-19 are mandatory.");
 
     try {
-      // Run all 4 calls in parallel — each handles different numbered sections
-      const [part1, part2, part3, part4] = await Promise.all([
+      // Run all 5 calls in parallel
+      const [part1, part2, part3, part4, part5] = await Promise.all([
         callAPI(SYSTEM_PART1, userMsg),
         callAPI(SYSTEM_PART2, userMsg),
         callAPI(SYSTEM_PART3, userMsg),
         callAPI(SYSTEM_PART4, userMsg),
+        callAPI(SYSTEM_PART5, userMsg),
       ]);
 
-      if (!part1.trim()) throw new Error("Empty response from Part 1 — please try again.");
-      if (!part2.trim()) throw new Error("Empty response from Part 2 — please try again.");
-      if (!part3.trim()) throw new Error("Empty response from Part 3 — please try again.");
-      if (!part4.trim()) throw new Error("Empty response from Part 4 — please try again.");
+      if (!part1.trim()) throw new Error("Part 1 empty — please try again.");
+      if (!part2.trim()) throw new Error("Part 2 empty — please try again.");
+      if (!part3.trim()) throw new Error("Part 3 empty — please try again.");
+      if (!part4.trim()) throw new Error("Part 4 empty — please try again.");
+      if (!part5.trim()) throw new Error("Part 5 empty — please try again.");
 
-      // ── Extract exactly the allowed sections from each part ──────────────────
-      // Matches ## 9. OR ## 9  OR ## 9: (any separator after number)
-      const extractSections = (text, allowedNums) => {
+      // ── Extract only the correct section numbers from each part ────────────
+      const extractSections = (text, allowed) => {
         const lines = text.split("\n");
         const out = [];
-        let currentNum = null;
         let capturing = false;
-
         for (const line of lines) {
-          // Match ## followed by a number (with optional dot/colon/space)
-          const m = line.match(/^##\s+(\d+)[.:\s]/);
+          const m = line.match(/^##\s+(\d+)[.\s:]/);
           if (m) {
-            currentNum = parseInt(m[1]);
-            capturing = allowedNums.includes(currentNum);
+            capturing = allowed.includes(parseInt(m[1]));
           }
           if (capturing) out.push(line);
         }
@@ -448,14 +530,17 @@ STOP after ## 19. Reference Links. Do NOT repeat any earlier sections.`;
 
       const p1 = extractSections(part1, [1,2,3,4,5]);
       const p2 = extractSections(part2, [6,7,8,9,10]);
-      const p3 = extractSections(part3, [11,12,13,14]);
-      const p4 = extractSections(part4, [15,16,17,18,19]);
+      const p3 = extractSections(part3, [11,12]);
+      const p4 = extractSections(part4, [13,14,15]);
+      const p5 = extractSections(part5, [16,17,18,19]);
 
-      // Build title from part1 (# PRD: title line)
-      const titleLine = part1.match(/^#\s+PRD:.+/m)?.[0] || ("# PRD \u2014 " + product);
+      // PRD title
+      const titleLine = part1.match(/^#[^#].+/m)?.[0] || ("# PRD: " + product);
 
-      // Final assembly: title + all 19 sections in order
-      const text = titleLine + "\n\n" + p1 + "\n\n" + p2 + "\n\n" + p3 + "\n\n" + p4 + "\n\n---\n*Generated by ConnectWise PRD Generator*";
+      // Assemble in strict order
+      const text = [titleLine, p1, p2, p3, p4, p5, "---", "*Generated by ConnectWise PRD Generator*"]
+        .filter(Boolean)
+        .join("\n\n");
 
       clearInterval(iv); setProgress(100);
       setPrdText(text);
